@@ -11,7 +11,7 @@ const API_KEY = process.env["API_KEY"];
 const server = express(), api_port = 3000;
 const bodyparser_configurations = { limit: "50mb", extended: true };
 
-const version = "1"
+const version = "1" 
 
 // Functions
 const https_predict = (headers, url, session_hash, fn_index, data) => new Promise((resolve, reject) => {
