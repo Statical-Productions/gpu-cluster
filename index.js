@@ -47,6 +47,7 @@ server.all(`/`, (req, res) => { res.send(`[SYSTEM] 🟢 The server has been main
 server.post('/generate', async (req, res) => {
   try {
     const key = req.headers['key'];
+    const header = { "Content-Type": "application/json", "Key": key, "Authorization": req.authorization }
 
     if (!key) {
       const error = new Error('No key header provided');
@@ -60,7 +61,7 @@ server.post('/generate', async (req, res) => {
       return res.status(403).send('Forbidden: Invalid API key');
     }
 
-    const result = await generate(req.headers, req.body);
+    const result = await generate(header, req.body);
     res.send(result);
   } catch (error) {
     console.warn('[SYSTEM] 🔴 There was an error generating data.', error);
