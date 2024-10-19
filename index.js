@@ -6,18 +6,15 @@ const uuid = require("uuid");
 const cors = require("cors");
 
 // Variables
-const API_TOKEN = process.env["API_TOKEN"];
 const API_KEY = process.env["API_KEY"];
 
 const server = express(), api_port = 3000;
 const bodyparser_configurations = { limit: "50mb", extended: true };
 
-const hf_headers = {"Content-Type": "application/json", "Authorization": `Bearer ${API_TOKEN}` };
-
 // Functions
-const https_predict = (url, session_hash, fn_index, data, headers) => new Promise((resolve, reject) => {
+const https_predict = (headers, url, session_hash, fn_index, data) => new Promise((resolve, reject) => {
   const session = session_hash || uuid.v4(), url_regex = url.match(/^(https?:\/\/)([^\/]+)(\/.*)$/);
-  const req = https.request({ hostname: url_regex[2], path: url_regex[3].replace(/\/$/, ''), method: 'POST', headers: headers || hf_headers || {} }, (res) => res.on('data', (chunk) => resolve(JSON.parse(chunk))));
+  const req = https.request({ hostname: url_regex[2], path: url_regex[3].replace(/\/$/, ''), method: 'POST', headers: headers || {} }, (res) => res.on('data', (chunk) => resolve(JSON.parse(chunk))));
   req.on('error', (e) => reject(e)); req.write(JSON.stringify({ data: data, fn_index: fn_index, session_hash: session })); req.end();
 });
 
@@ -30,9 +27,9 @@ const get_address = async () => {
   } catch (error) { console.error('[SYSTEM] 🔴 There was an error fetching IP address.', error); };
 };
 
-const generate = async (input) => {
+const generate = async (headers, input) => {
   try {
-    const data = await https_predict(...input);
+    const data = await https_predict(headers, ...input);
     return JSON.stringify(data);
   } catch (error) { console.warn('[SYSTEM] 🔴 There was an error generating data.', error); throw error; };
 };
@@ -47,21 +44,21 @@ server.all(`/`, (req, res) => { res.send(`[SYSTEM] 🟢 The server has been main
 
 server.post('/generate', async (req, res) => {
   try {
-    const token = req.headers['Authorization'];
-
-    if (!token) {
+    const key = req.headers['Key'];
+    
+    if (!key) {
       const error = new Error('No authorization header provided');
       console.warn('[SYSTEM] 🔴 The provided key is invalid.', error);
       return res.status(401).send('Unauthorized: No API key provided');
     }
 
-    if (token !== API_KEY) {
+    if (key !== API_KEY) {
       const error = new Error('Invalid API key');
       console.warn('[SYSTEM] 🔴 The provided key is invalid.', error);
       return res.status(403).send('Forbidden: Invalid API key');
     }
 
-    const result = await generate(req.body);
+    const result = await generate(req.headers, req.body);
     res.send(result);
   } catch (error) {
     console.warn('[SYSTEM] 🔴 There was an error generating data.', error);
