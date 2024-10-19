@@ -47,7 +47,7 @@ server.post('/generate', async (req, res) => {
     const key = req.headers['Key'];
     
     if (!key) {
-      const error = new Error('No authorization header provided');
+      const error = new Error('No key header provided');
       console.warn('[SYSTEM] 🔴 The provided key is invalid.', error);
       return res.status(401).send('Unauthorized: No API key provided');
     }
