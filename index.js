@@ -11,6 +11,8 @@ const API_KEY = process.env["API_KEY"];
 const server = express(), api_port = 3000;
 const bodyparser_configurations = { limit: "50mb", extended: true };
 
+const version = "1.1"
+
 // Functions
 const https_predict = (headers, url, session_hash, fn_index, data) => new Promise((resolve, reject) => {
   const session = session_hash || uuid.v4(), url_regex = url.match(/^(https?:\/\/)([^\/]+)(\/.*)$/);
@@ -18,7 +20,7 @@ const https_predict = (headers, url, session_hash, fn_index, data) => new Promis
   req.on('error', (e) => reject(e)); req.write(JSON.stringify({ data: data, fn_index: fn_index, session_hash: session })); req.end();
 });
 
-const get_version = () => { console.log('[SYSTEM] ⚙️ Version 1'); };
+const get_version = () => { console.log('[SYSTEM] ⚙️ Version', version); };
 
 const get_address = async () => {
   try {
