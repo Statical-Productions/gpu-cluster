@@ -11,7 +11,7 @@ const API_KEY = process.env["API_KEY"];
 const server = express(), api_port = 3000;
 const bodyparser_configurations = { limit: "50mb", extended: true };
 
-const version = "1.1"
+const version = "1.0.1"
 
 // Functions
 const https_predict = (headers, url, session_hash, fn_index, data) => new Promise((resolve, reject) => {
@@ -47,8 +47,7 @@ server.all(`/`, (req, res) => { res.send(`[SYSTEM] 🟢 The server has been main
 server.post('/generate', async (req, res) => {
   try {
     const key = req.headers['key'];
-    console.warn(req.headers)
-    console.warn(req.headers['key'])
+
     if (!key) {
       const error = new Error('No key header provided');
       console.warn('[SYSTEM] 🔴 The provided key is invalid.', error);
