@@ -44,7 +44,7 @@ server.all(`/`, (req, res) => { res.send(`[SYSTEM] 🟢 The server has been main
 
 server.post('/generate', async (req, res) => {
   try {
-    const key = req.headers['Key'];
+    const key = req.headers['key'];
     console.warn(req.headers)
     if (!key) {
       const error = new Error('No key header provided');
