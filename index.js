@@ -47,7 +47,9 @@ server.all(`/`, (req, res) => { res.send(`[SYSTEM] 🟢 The server has been main
 server.post('/generate', async (req, res) => {
   try {
     const key = req.headers['key'];
-    const header = { "Content-Type": "application/json", "Key": key, "Authorization": req.authorization }
+    const authorization = req.headers['authorization'];
+    
+    const header = { "Content-Type": "application/json", "Key": key, "Authorization": authorization }
 
     if (!key) {
       const error = new Error('No key header provided');
