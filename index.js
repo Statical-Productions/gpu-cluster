@@ -7,6 +7,7 @@ const cors = require("cors");
 
 // Variables
 const API_TOKEN = process.env["API_TOKEN"];
+const API_KEY = process.env["API_KEY"];
 
 const server = express(), api_port = 3000;
 const bodyparser_configurations = { limit: "50mb", extended: true };
@@ -26,14 +27,14 @@ const get_address = async () => {
   try {
     const response = await axios.get('https://api.ipify.org');
     console.log("[SYSTEM] ☁️ Address - " + response.data);
-  } catch (error) { console.error('[SYSTEM] 🔴 There was an error fetching IP address, ', error); };
+  } catch (error) { console.error('[SYSTEM] 🔴 There was an error fetching IP address.', error); };
 };
 
 const generate = async (input) => {
   try {
     const data = await https_predict(...input);
     return JSON.stringify(data);
-  } catch (error) { console.warn('[SYSTEM] 🔴 There was an error generating data', error); throw error; };
+  } catch (error) { console.warn('[SYSTEM] 🔴 There was an error generating data.', error); throw error; };
 };
 
 // Initialize
@@ -46,12 +47,29 @@ server.all(`/`, (req, res) => { res.send(`[SYSTEM] 🟢 The server has been main
 
 server.post('/generate', async (req, res) => {
   try {
+    const token = req.headers['Authorization'];
+
+    if (!token) {
+      const error = new Error('No authorization header provided');
+      console.warn('[SYSTEM] 🔴 The provided key is invalid.', error);
+      return res.status(401).send('Unauthorized: No API key provided');
+    }
+
+    if (token !== API_KEY) {
+      const error = new Error('Invalid API key');
+      console.warn('[SYSTEM] 🔴 The provided key is invalid.', error);
+      return res.status(403).send('Forbidden: Invalid API key');
+    }
+
     const result = await generate(req.body);
     res.send(result);
-  } catch (error) { console.warn('[SYSTEM] 🔴 There was an error generating data', error); }
+  } catch (error) {
+    console.warn('[SYSTEM] 🔴 There was an error generating data.', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 get_address()
 get_version()
 
-process.on('uncaughtException', (error) => { console.warn('[SYSTEM] 🔴 There was an uncaught error', error) })
+process.on('uncaughtException', (error) => { console.warn('[SYSTEM] 🔴 There was an uncaught error.', error) })
